@@ -1,4 +1,5 @@
 {
+  "packageManager": "npm@10.8.0",
   "name": "j3os",
   "version": "0.1.0",
   "description": "J3OS Framework - Web3 Cross Chain/Multi Chain AI Agent/Swarm DeFi Platform",

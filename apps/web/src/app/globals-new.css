@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e3a8a 100%);
+  color: white;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.ai-swarm-glow {
+  background: rgba(147, 51, 234, 0.05);
+  border: 1px solid rgba(147, 51, 234, 0.2);
+  box-shadow: 0 0 30px rgba(147, 51, 234, 0.3);
+}
+
+.neural-network-glow {
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+}
+
+.trading-glow {
+  background: rgba(34, 197, 94, 0.05);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+}
+
+.btn-primary-modern {
+  background: linear-gradient(to right, #7c3aed, #2563eb);
+  color: white;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px 0 rgba(0, 118, 255, 0.39);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+}
+
+.btn-primary-modern:hover {
+  background: linear-gradient(to right, #6d28d9, #1d4ed8);
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px 0 rgba(0, 118, 255, 0.5);
+}
+
+.btn-danger-modern {
+  background: linear-gradient(to right, #dc2626, #ec4899);
+  color: white;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px 0 rgba(220, 38, 38, 0.39);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.btn-danger-modern:hover {
+  background: linear-gradient(to right, #b91c1c, #db2777);
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px 0 rgba(220, 38, 38, 0.5);
+}
+
+.btn-success-modern {
+  background: linear-gradient(to right, #059669, #10b981);
+  color: white;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px 0 rgba(5, 150, 105, 0.39);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(5, 150, 105, 0.3);
+}
+
+.btn-success-modern:hover {
+  background: linear-gradient(to right, #047857, #059669);
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px 0 rgba(5, 150, 105, 0.5);
+}
+
+.input-modern {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.input-modern::placeholder {
+  color: rgba(156, 163, 175, 1);
+}
+
+.input-modern:focus {
+  outline: none;
+  border-color: rgba(124, 58, 237, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+}

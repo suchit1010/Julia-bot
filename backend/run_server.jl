@@ -1,5 +1,8 @@
+
 using DotEnv
 DotEnv.load!()
+println("BINANCE_API_KEY: ", get(ENV, "BINANCE_API_KEY", ">NOT SET<"))
+println("BINANCE_API_SECRET: ", get(ENV, "BINANCE_API_SECRET", ">NOT SET<"))
 
 using Pkg
 Pkg.activate(".")
@@ -7,10 +10,16 @@ Pkg.activate(".")
 using JuliaOSBackend.JuliaOSV1Server
 using JuliaOSBackend.JuliaDB
 
+using JuliaOSBackend.Agents.Strategies
+include("src/agents/CommonTypes.jl")
+include("src/agents/strategies/strategy_ai_swarm_market_making.jl")
+
 function main()
     @info "Initializing DB connection..."
     db_host = get(ENV, "DB_HOST", "localhost")
     db_port = parse(Int, get(ENV, "DB_PORT", "5435"))
+        println("[DEBUG] ENV['BINANCE_API_KEY']: ", get(ENV, "BINANCE_API_KEY", "<not set>"))
+        println("[DEBUG] ENV['BINANCE_API_SECRET']: ", get(ENV, "BINANCE_API_SECRET", "<not set>"))
     db_name = get(ENV, "DB_NAME", "postgres")
     db_user = get(ENV, "DB_USER", "postgres")
     db_password = get(ENV, "DB_PASSWORD", "postgres")

@@ -1,6 +1,6 @@
 module Strategies
 
-export STRATEGY_REGISTRY
+export STRATEGY_REGISTRY, fetch_open_positions
 
 include("strategy_example_adder.jl")
 include("strategy_plan_and_execute.jl")

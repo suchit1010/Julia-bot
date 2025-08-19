@@ -1,3 +1,189 @@
+# using Agents.Strategies
+
+"""
+Handle AI Swarm live open trades
+GET /api/v1/ai-swarm/trades
+"""
+const AI_SWARM_CHART_HISTORY = Dict{String, Vector{Dict{String, Any}}}()
+
+function handle_ai_swarm_live_trades(req::HTTP.Request)
+    @info "AI Swarm live trades request received"
+    try
+        # Fetch open trades from Binance testnet
+        current_config = get(AI_SWARM_SYSTEM_STATE.active_strategies, "ai_swarm_market_making", nothing)
+        api_key = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "api_key", "") : getfield(current_config, :api_key)) : ""
+        api_secret = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "api_secret", "") : getfield(current_config, :api_secret)) : ""
+        symbol = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "symbols", ["ETHUSDT"])[1] : getfield(current_config, :symbols)[1]) : "ETHUSDT"
+        trades = try
+            if isdefined(Strategies, :fetch_open_trades)
+                Strategies.fetch_open_trades(symbol, api_key, api_secret)
+            else
+                []
+            end
+        catch e
+            @warn "Failed to fetch open trades: $e"
+            []
+        end
+        return HTTP.Response(200, JSON3.write(Dict("success" => true, "trades" => trades)))
+    catch e
+        @error "Error fetching live trades: $e"
+        return HTTP.Response(500, JSON3.write(Dict("success" => false, "error" => string(e))))
+    end
+end
+
+"""
+Handle AI Swarm open orders
+GET /api/v1/ai-swarm/open-orders
+"""
+function handle_ai_swarm_open_orders(req::HTTP.Request)
+    @info "AI Swarm open orders request received"
+    try
+        current_config = get(AI_SWARM_SYSTEM_STATE.active_strategies, "ai_swarm_market_making", nothing)
+        api_key = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "api_key", "") : getfield(current_config, :api_key)) : ""
+        api_secret = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "api_secret", "") : getfield(current_config, :api_secret)) : ""
+        symbol = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "symbols", ["ETHUSDT"])[1] : getfield(current_config, :symbols)[1]) : "ETHUSDT"
+        orders = try
+            if isdefined(Strategies, :fetch_open_orders)
+                Strategies.fetch_open_orders(symbol, api_key, api_secret)
+            else
+                []
+            end
+        catch e
+            @warn "Failed to fetch open orders: $e"
+            []
+        end
+        return HTTP.Response(200, JSON3.write(Dict("success" => true, "orders" => orders)))
+    catch e
+        @error "Error fetching open orders: $e"
+        return HTTP.Response(500, JSON3.write(Dict("success" => false, "error" => string(e))))
+    end
+end
+
+"""
+Handle AI Swarm live open positions
+GET /api/v1/ai-swarm/positions
+"""
+function handle_ai_swarm_live_positions(req::HTTP.Request)
+    @info "AI Swarm live positions request received"
+    try
+        current_config = get(AI_SWARM_SYSTEM_STATE.active_strategies, "ai_swarm_market_making", nothing)
+        api_key = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "api_key", "") : getfield(current_config, :api_key)) : ""
+        api_secret = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "api_secret", "") : getfield(current_config, :api_secret)) : ""
+        symbol = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "symbols", ["ETHUSDT"])[1] : getfield(current_config, :symbols)[1]) : "ETHUSDT"
+    positions = Strategies.fetch_open_positions(symbol, api_key, api_secret)
+        return HTTP.Response(200, JSON3.write(Dict("success" => true, "positions" => positions)))
+    catch e
+        @error "Error fetching live positions: $e"
+        return HTTP.Response(500, JSON3.write(Dict("success" => false, "error" => string(e))))
+    end
+end
+
+"""
+Handle AI Swarm real balance from Binance testnet
+GET /api/v1/ai-swarm/balance
+"""
+function handle_ai_swarm_balance(req::HTTP.Request)
+    @info "AI Swarm balance request received"
+    try
+        current_config = get(AI_SWARM_SYSTEM_STATE.active_strategies, "ai_swarm_market_making", nothing)
+        api_key = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "api_key", "") : getfield(current_config, :api_key)) : ""
+        api_secret = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "api_secret", "") : getfield(current_config, :api_secret)) : ""
+        balance = try
+            if isdefined(Agents.Strategies, :fetch_binance_balance)
+                Agents.Strategies.fetch_binance_balance(api_key, api_secret)
+            else
+                Dict()
+            end
+        catch e
+            @warn "Failed to fetch balance: $e"
+            Dict()
+        end
+        return HTTP.Response(200, JSON3.write(Dict("success" => true, "balance" => balance)))
+    catch e
+        @error "Error fetching balance: $e"
+        return HTTP.Response(500, JSON3.write(Dict("success" => false, "error" => string(e))))
+    end
+end
+
+"""
+Handle AI Swarm realized PnL when trading is stopped
+GET /api/v1/ai-swarm/pnl
+"""
+function handle_ai_swarm_realized_pnl(req::HTTP.Request)
+    @info "AI Swarm realized PnL request received"
+    try
+        # Only return PnL if trading is stopped
+        trading_active = try
+            if isdefined(Agents.Strategies, :AI_SWARM_TRADING_CONTROL)
+                Agents.Strategies.AI_SWARM_TRADING_CONTROL.is_running
+            else
+                AI_SWARM_SYSTEM_STATE.is_running
+            end
+        catch
+            AI_SWARM_SYSTEM_STATE.is_running
+        end
+        if trading_active
+            return HTTP.Response(400, JSON3.write(Dict("success" => false, "error" => "Trading is still active. Stop trading to get realized PnL.")))
+        end
+        # Fetch realized PnL from Binance testnet
+        current_config = get(AI_SWARM_SYSTEM_STATE.active_strategies, "ai_swarm_market_making", nothing)
+        api_key = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "api_key", "") : getfield(current_config, :api_key)) : ""
+        api_secret = current_config !== nothing ? (isa(current_config, Dict) ? get(current_config, "api_secret", "") : getfield(current_config, :api_secret)) : ""
+        pnl = try
+            if isdefined(Agents.Strategies, :fetch_realized_pnl)
+                Agents.Strategies.fetch_realized_pnl(api_key, api_secret)
+            else
+                0.0
+            end
+        catch e
+            @warn "Failed to fetch realized PnL: $e"
+            0.0
+        end
+        return HTTP.Response(200, JSON3.write(Dict("success" => true, "realized_pnl" => pnl)))
+    catch e
+        @error "Error fetching realized PnL: $e"
+        return HTTP.Response(500, JSON3.write(Dict("success" => false, "error" => string(e))))
+    end
+end
+
+    """
+    Handle AI Swarm AI Decisions
+    GET /api/v1/ai-swarm/ai_decisions
+    """
+    function handle_ai_swarm_ai_decisions(req::HTTP.Request)
+        @info "AI Swarm AI decisions request received"
+        try
+            # Stub: Return example AI decisions
+            decisions = [
+                Dict("type" => "buy", "value" => "ETHUSDT", "confidence" => 92.5, "timestamp" => string(now())),
+                Dict("type" => "sell", "value" => "BTCUSDT", "confidence" => 87.3, "timestamp" => string(now()))
+            ]
+            return HTTP.Response(200, JSON3.write(Dict("success" => true, "decisions" => decisions)))
+        catch e
+            @error "Error fetching AI decisions: $e"
+            return HTTP.Response(500, JSON3.write(Dict("success" => false, "error" => string(e))))
+        end
+    end
+
+    """
+    Handle AI Swarm Analysis Results
+    GET /api/v1/ai-swarm/analysis
+    """
+    function handle_ai_swarm_analysis(req::HTTP.Request)
+        @info "AI Swarm analysis request received"
+        try
+            # Stub: Return example analysis data
+            analysis = Dict(
+                "trends" => "Upward",
+                "sentiment" => "Bullish",
+                "optimizations" => "Spread tightening"
+            )
+            return HTTP.Response(200, JSON3.write(Dict("success" => true, "analysis" => analysis)))
+        catch e
+            @error "Error fetching analysis: $e"
+            return HTTP.Response(500, JSON3.write(Dict("success" => false, "error" => string(e))))
+        end
+    end
 """
 AI Swarm Trading API Extension for JuliaOS
 
@@ -596,10 +782,26 @@ function handle_ai_swarm_realtime_data(req::HTTP.Request)
             AI_SWARM_SYSTEM_STATE.is_running
         end
         
+        # --- Chart Data Storage ---
+        # Use a global variable to store chart data for each symbol
+        if !haskey(AI_SWARM_CHART_HISTORY, symbol)
+            AI_SWARM_CHART_HISTORY[symbol] = Vector{Dict{String, Any}}()
+        end
+        # Append latest data to chart history (keep last 100 points)
+        chart_point = Dict(
+            "time" => string(now()),
+            "price" => haskey(market_data, "price") ? market_data["price"] : 0.0,
+            "prediction" => (ai_analysis !== nothing && haskey(ai_analysis, "prediction")) ? ai_analysis["prediction"] : 0.0
+        )
+        push!(AI_SWARM_CHART_HISTORY[symbol], chart_point)
+        if length(AI_SWARM_CHART_HISTORY[symbol]) > 100
+            deleteat!(AI_SWARM_CHART_HISTORY[symbol], 1)
+        end
+        # Add chart data to response
         response_data = Dict(
             "success" => true,
             "symbol" => symbol,
-            "market_data" => market_data,
+            "market_data" => merge(market_data, Dict("chart" => deepcopy(AI_SWARM_CHART_HISTORY[symbol]))),
             "ai_analysis" => ai_analysis,
             "system_active" => system_active,
             "timestamp" => now()
@@ -915,6 +1117,13 @@ end
 Register AI Swarm API routes
 """
 function register_ai_swarm_routes(router::HTTP.Router)
+    HTTP.register!(router, "GET", "/api/v1/ai-swarm/trades", handle_ai_swarm_live_trades)
+    HTTP.register!(router, "GET", "/api/v1/ai-swarm/open-orders", handle_ai_swarm_open_orders)
+    HTTP.register!(router, "GET", "/api/v1/ai-swarm/positions", handle_ai_swarm_live_positions)
+    HTTP.register!(router, "GET", "/api/v1/ai-swarm/balance", handle_ai_swarm_balance)
+    HTTP.register!(router, "GET", "/api/v1/ai-swarm/pnl", handle_ai_swarm_realized_pnl)
+        HTTP.register!(router, "GET", "/api/v1/ai-swarm/ai_decisions", handle_ai_swarm_ai_decisions)
+        HTTP.register!(router, "GET", "/api/v1/ai-swarm/analysis", handle_ai_swarm_analysis)
     @info "Registering AI Swarm API routes..."
     
     # System management endpoints

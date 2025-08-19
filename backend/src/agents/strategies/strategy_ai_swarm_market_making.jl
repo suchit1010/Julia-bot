@@ -1,6 +1,4 @@
 # 🤖🐝 AI SWARM MARKET MAKING STRATEGY
-# Complete AI-Powered Multi-Agent Trading System with Real Neural Networks
-# Features: Deep Q-Networks, Groq LLM Integration, True Swarm Intelligence
 
 using HTTP, JSON3, CSV, DataFrames, Statistics, Dates, Random, SHA
 using LinearAlgebra, Printf
@@ -1143,6 +1141,7 @@ function initialize_ai_swarm_pnl_tracker(api_key::String, api_secret::String)
         GLOBAL_AI_SWARM_PNL_TRACKER.initial_balance_usdt = 1000.0  # Mock balance
         GLOBAL_AI_SWARM_PNL_TRACKER.current_balance_usdt = 1000.0
         GLOBAL_AI_SWARM_PNL_TRACKER.max_balance = 1000.0
+        GLOBAL_AI_SWARM_PNL_TRACKER.max_drawdown = 0.0
         return true
     catch e
         @warn "Failed to initialize AI PnL tracker: $e"
@@ -1405,39 +1404,49 @@ function binance_api_request_ai_swarm(endpoint::String, method::String, api_key:
         # Add timestamp
         timestamp = string(Int(round(time() * 1000)))
         params["timestamp"] = timestamp
-        
-        # Create query string
+
+        # Build query string for signature (exclude signature)
+        ordered_keys = sort(collect(keys(params)))
+        # Binance expects symbol, timestamp, then signature last (signature not included in signature calculation)
         query_params = []
-        for (key, value) in params
-            push!(query_params, "$key=$value")
+        if haskey(params, "symbol")
+            push!(query_params, "symbol=$(params["symbol"])")
+        end
+        if haskey(params, "timestamp")
+            push!(query_params, "timestamp=$(params["timestamp"])")
+        end
+        # Add any other params except signature
+        for k in ordered_keys
+            if k != "symbol" && k != "timestamp" && k != "signature"
+                push!(query_params, "$k=$(params[k])")
+            end
         end
         query_string = join(query_params, "&")
-        
+
         # Create signature
         signature = hmac_sha256_ai_swarm(api_secret, query_string)
-        full_query = "$query_string&signature=$signature"
-        
-        # Create full URL
+
+        # Build final query string: all params + signature last
+        final_query_string = query_string * "&signature=" * signature
+
         base_url = "https://testnet.binancefuture.com"
-        full_url = "$base_url$endpoint?$full_query"
-        
-        # Headers
-        headers = [
+        headers = Dict(
             "X-MBX-APIKEY" => api_key,
             "Content-Type" => "application/x-www-form-urlencoded"
-        ]
-        
-        # Make request
-        if method == "GET"
-            response = HTTP.get(full_url, headers)
+        )
+
+        if method == "GET" || method == "DELETE"
+            full_url = "$base_url$endpoint?$final_query_string"
+            if method == "GET"
+                response = HTTP.get(full_url, headers)
+            else
+                response = HTTP.delete(full_url, headers)
+            end
         elseif method == "POST"
-            response = HTTP.post("$base_url$endpoint", headers, body=full_query)
-        elseif method == "DELETE"
-            response = HTTP.delete(full_url, headers)
+            response = HTTP.post("$base_url$endpoint", headers, body=final_query_string)
         else
             return Dict("error" => "Unsupported method: $method")
         end
-        
         return JSON3.read(String(response.body))
         
     catch e
@@ -1605,9 +1614,78 @@ function update_ai_execution_metrics(successful_orders::Int, total_orders::Int, 
     end
 end
 
+
+# Fetch open orders for AI Swarm (Binance)
+function fetch_open_orders(symbol::String, api_key::String, api_secret::String)
+    try
+        orders = binance_api_request_ai_swarm("/fapi/v1/openOrders", "GET", api_key, api_secret, Dict("symbol" => symbol))
+        if isa(orders, Dict) && haskey(orders, "error")
+            println("❌ [AI SWARM API] Error fetching open orders: $(orders["error"])")
+            return []
+        end
+        return orders
+    catch e
+        println("❌ [AI SWARM API] Exception in fetch_open_orders: $e")
+        return []
+    end
+end
+
+"""
+Test Binance API key and secret using /fapi/v1/ping endpoint.
+Prints result for quick verification before trading.
+"""
+function test_binance_api_key(api_key::String, api_secret::String)
+    println("[TEST] Testing Binance API key at $(Dates.format(now(), "yyyy-mm-dd HH:MM:SS")) ...")
+    resp = binance_api_request_ai_swarm("/fapi/v1/ping", "GET", api_key, api_secret)
+    println("[TEST] Ping Response: ", resp)
+    if isa(resp, Dict) && haskey(resp, "error")
+        println("[TEST] Error: ", resp["error"])
+    else
+        println("[TEST] API key is valid!")
+    end
+end
+
 # ===== END REAL TRADING API FUNCTIONS =====
 
-# Strategy specification for AI Swarm Market Making
+# Function to fetch open positions from Binance Futures testnet
+function fetch_open_positions(api_key::String, api_secret::String, symbol::String)
+    try
+        url = "https://testnet.binancefuture.com/fapi/v2/positionRisk?symbol=$(symbol)"
+        timestamp = string(Int(round(time() * 1000)))
+        query = "symbol=$(symbol)&timestamp=$(timestamp)"
+        signature = bytes2hex(SHA.hmac_sha256(Vector{UInt8}(api_secret), Vector{UInt8}(query)))
+        headers = ["X-MBX-APIKEY" => api_key]
+        full_url = url * "&timestamp=$(timestamp)&signature=$(signature)"
+        resp = HTTP.get(full_url, headers)
+        if resp.status == 200
+            data = JSON3.read(String(resp.body))
+            positions = []
+            if isa(data, Vector)
+                for pos in data
+                    if parse(Float64, pos["positionAmt"]) != 0.0
+                        push!(positions, pos)
+                    end
+                end
+            elseif isa(data, Dict)
+                if haskey(data, "positionAmt") && parse(Float64, data["positionAmt"]) != 0.0
+                    push!(positions, data)
+                end
+            end
+            println("[DEBUG] Open positions: $(positions)")
+            return positions
+        else
+            println("[ERROR] Failed to fetch positions: Status $(resp.status)")
+            return []
+        end
+    catch e
+        println("[ERROR] Exception in fetch_open_positions: $e")
+        return []
+    end
+end
+
+# Export and define the strategy constant for registration (moved to end of file)
+export AI_SWARM_MARKET_MAKING_STRATEGY
+
 const AI_SWARM_MARKET_MAKING_STRATEGY = StrategySpecification(
     strategy_ai_swarm_market_making,
     strategy_ai_swarm_market_making_initialization,
@@ -1615,7 +1693,3 @@ const AI_SWARM_MARKET_MAKING_STRATEGY = StrategySpecification(
     StrategyMetadata("ai_swarm_market_making"),
     AISwarmMarketMakingInput
 )
-
-println("🤖🐝 ✅ AI Swarm Market Making Strategy loaded successfully!")
-println("🧠 Features: Deep Q-Networks, Groq LLM, True Swarm Intelligence")
-println("🚀 Ready for genuinely AI-powered autonomous trading!")

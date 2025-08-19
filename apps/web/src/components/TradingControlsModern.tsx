@@ -293,120 +293,105 @@ export function TradingControls({ status, onStatusChange }: TradingControlsProps
                   className="input-modern w-full"
                 />
               </motion.div>
-            >
-              <Play className="w-5 h-5" />
-              {isLoading ? 'Starting...' : 'Start AI Swarm'}
-            </button>
-          ) : (
-            <button 
-              onClick={handleStopTrading}
-              disabled={isLoading}
-              className="btn-warning"
-            >
-              <Square className="w-5 h-5" />
-              {isLoading ? 'Stopping...' : 'Stop Trading'}
-            </button>
-          )}
-          
-          <button 
-            onClick={handleEmergencyStop}
-            disabled={isLoading || !isTrading}
-            className="btn-danger"
-          >
-            <AlertTriangle className="w-5 h-5" />
-            Emergency Stop
-          </button>
-          
-          <button 
-            onClick={() => setShowConfig(!showConfig)}
-            className="btn-primary"
-          >
-            <Settings className="w-5 h-5" />
-            Config
-          </button>
-        </div>
-      </div>
 
-      {/* Configuration Panel */}
-      {showConfig && (
-        <div className="border-t border-gray-700 pt-6 space-y-4">
-          <h3 className="text-lg font-semibold text-white mb-4">AI Swarm Configuration</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Max Capital (USDT)
-              </label>
-              <input 
-                type="number"
-                value={config.max_capital}
-                onChange={(e) => setConfig({...config, max_capital: Number(e.target.value)})}
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              />
+              <motion.div
+                className="space-y-2"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <label className="block text-sm font-medium text-gray-300">
+                  📊 Base Spread (%)
+                </label>
+                <input 
+                  type="number"
+                  step="0.01"
+                  value={config.base_spread_pct}
+                  onChange={(e) => setConfig({...config, base_spread_pct: Number(e.target.value)})}
+                  className="input-modern w-full"
+                />
+              </motion.div>
+
+              <motion.div
+                className="space-y-2"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <label className="block text-sm font-medium text-gray-300">
+                  🤝 Consensus Threshold
+                </label>
+                <input 
+                  type="number"
+                  step="0.01"
+                  min="0.5"
+                  max="1"
+                  value={config.consensus_threshold}
+                  onChange={(e) => setConfig({...config, consensus_threshold: Number(e.target.value)})}
+                  className="input-modern w-full"
+                />
+              </motion.div>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Base Spread (%)
-              </label>
-              <input 
-                type="number"
-                step="0.01"
-                value={config.base_spread_pct}
-                onChange={(e) => setConfig({...config, base_spread_pct: Number(e.target.value)})}
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              />
+
+            {/* AI Features Toggle */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+              <motion.div 
+                className="flex items-center space-x-3 p-4 bg-white/5 rounded-xl border border-purple-500/20"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <input 
+                  type="checkbox"
+                  checked={config.enable_neural_networks}
+                  onChange={(e) => setConfig({...config, enable_neural_networks: e.target.checked})}
+                  className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
+                />
+                <div>
+                  <p className="text-white font-medium">🧠 Neural Networks</p>
+                  <p className="text-xs text-gray-400">Deep Q-Networks & CNNs</p>
+                </div>
+              </motion.div>
+
+              <motion.div 
+                className="flex items-center space-x-3 p-4 bg-white/5 rounded-xl border border-blue-500/20"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <input 
+                  type="checkbox"
+                  checked={config.enable_groq_sentiment}
+                  onChange={(e) => setConfig({...config, enable_groq_sentiment: e.target.checked})}
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <div>
+                  <p className="text-white font-medium">💭 Groq LLM</p>
+                  <p className="text-xs text-gray-400">Sentiment Analysis</p>
+                </div>
+              </motion.div>
+
+              <motion.div 
+                className="flex items-center space-x-3 p-4 bg-white/5 rounded-xl border border-green-500/20"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6 }}
+              >
+                <input 
+                  type="checkbox"
+                  checked={config.enable_swarm_consensus}
+                  onChange={(e) => setConfig({...config, enable_swarm_consensus: e.target.checked})}
+                  className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+                />
+                <div>
+                  <p className="text-white font-medium">🐝 Swarm Consensus</p>
+                  <p className="text-xs text-gray-400">Democratic Voting</p>
+                </div>
+              </motion.div>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Consensus Threshold (%)
-              </label>
-              <input 
-                type="number"
-                step="0.01"
-                min="0.5"
-                max="1"
-                value={config.consensus_threshold}
-                onChange={(e) => setConfig({...config, consensus_threshold: Number(e.target.value)})}
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap gap-4">
-            <label className="flex items-center gap-2 text-sm text-gray-300">
-              <input 
-                type="checkbox"
-                checked={config.enable_neural_networks}
-                onChange={(e) => setConfig({...config, enable_neural_networks: e.target.checked})}
-                className="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
-              />
-              Enable Neural Networks
-            </label>
-            
-            <label className="flex items-center gap-2 text-sm text-gray-300">
-              <input 
-                type="checkbox"
-                checked={config.enable_groq_sentiment}
-                onChange={(e) => setConfig({...config, enable_groq_sentiment: e.target.checked})}
-                className="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
-              />
-              Enable Groq LLM Sentiment
-            </label>
-            
-            <label className="flex items-center gap-2 text-sm text-gray-300">
-              <input 
-                type="checkbox"
-                checked={config.enable_swarm_consensus}
-                onChange={(e) => setConfig({...config, enable_swarm_consensus: e.target.checked})}
-                className="rounded border-gray-600 bg-gray-800 text-blue-500 focus:ring-blue-500"
-              />
-              Enable Swarm Consensus
-            </label>
-          </div>
-        </div>
-      )}
-    </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   )
 }

@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-gray-900 via-purple-900/20 to-blue-900/20;
+    @apply text-white;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-xl;
+    backdrop-filter: blur(10px);
+  }
+  
+  .ai-swarm-glow {
+    @apply shadow-xl;
+    background: rgba(147, 51, 234, 0.05);
+    border: 1px solid rgba(147, 51, 234, 0.2);
+    box-shadow: 0 0 30px rgba(147, 51, 234, 0.3);
+  }
+  
+  .neural-network-glow {
+    @apply shadow-xl;
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+  }
+  
+  .trading-glow {
+    @apply shadow-xl;
+    background: rgba(34, 197, 94, 0.05);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+  }
+  
+  .btn-primary-modern {
+    @apply px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600;
+    @apply text-white font-medium rounded-xl;
+    @apply shadow-lg hover:shadow-xl;
+    @apply transition-all duration-300;
+    @apply border border-purple-500/30;
+    @apply hover:from-purple-500 hover:to-blue-500;
+    @apply hover:scale-105;
+  }
+  
+  .btn-danger-modern {
+    @apply px-6 py-3 bg-gradient-to-r from-red-600 to-pink-600;
+    @apply text-white font-medium rounded-xl;
+    @apply shadow-lg hover:shadow-xl;
+    @apply transition-all duration-300;
+    @apply border border-red-500/30;
+    @apply hover:from-red-500 hover:to-pink-500;
+    @apply hover:scale-105;
+  }
+  
+  .btn-success-modern {
+    @apply px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600;
+    @apply text-white font-medium rounded-xl;
+    @apply shadow-lg hover:shadow-xl;
+    @apply transition-all duration-300;
+    @apply border border-green-500/30;
+    @apply hover:from-green-500 hover:to-emerald-500;
+    @apply hover:scale-105;
+  }
+
+  .input-modern {
+    @apply bg-white/10 backdrop-blur-sm border border-white/20;
+    @apply rounded-xl px-4 py-3 text-white placeholder-gray-400;
+    @apply focus:outline-none focus:border-purple-500/50 focus:bg-white/15;
+    @apply transition-all duration-300;
+  }
+
+  .ai-gradient {
+    @apply bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500;
+  }
+  
+  .swarm-gradient {
+    @apply bg-gradient-to-r from-cyan-500 via-teal-500 to-green-500;
+  }
+  
+  .trading-gradient {
+    @apply bg-gradient-to-r from-orange-500 via-red-500 to-pink-500;
+  }
+  
+  .neural-glow {
+    @apply shadow-ai border border-purple-500/20;
+  }
+  
+  .swarm-glow {
+    @apply shadow-swarm border border-cyan-500/20;
+  }
+  
+  .consensus-glow {
+    @apply shadow-consensus border border-green-500/20;
+  }
+  
+  .card-base {
+    @apply bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-6;
+  }
+  
+  .agent-card {
+    @apply card-base hover:bg-white/15 transition-all duration-300;
+  }
+  
+  .status-indicator {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center gap-2;
+  }
+  
+  .btn-success {
+    @apply bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center gap-2;
+  }
+  
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center gap-2;
+  }
+  
+  .btn-warning {
+    @apply bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center gap-2;
+  }
+}

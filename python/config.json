@@ -1,0 +1,14 @@
+{
+    "base_url": "http://127.0.0.1:8052/api/v1/ai-swarm",
+    "refresh_interval": 5,
+    "endpoints": {
+        "status": { "method": "GET", "path": "/status" },
+        "start": { "method": "POST", "path": "/start" },
+        "stop": { "method": "POST", "path": "/stop" },
+        "emergency_stop": { "method": "POST", "path": "/emergency-stop" },
+        "performance": { "method": "GET", "path": "/performance" },
+        "agents": { "method": "GET", "path": "/agents" },
+        "realtime_data": { "method": "GET", "path": "/data/realtime" },
+        "config": { "method": "GET", "path": "/config" }
+    }
+}
