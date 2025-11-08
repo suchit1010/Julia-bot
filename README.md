@@ -567,8 +567,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact & Support
 
-- **GitHub Issues**: [Report bugs or request features](https://github.com/Rahul-Prasad-07/Julia-bot/issues)
-- **Email**: prasadrahulprn3@gmail.com.com
+- **GitHub Issues**: [Report bugs or request features](https://github.com/suchit1010/Julia-bot/issues)
+- **Email**: sonisuchit144@gmail.com
 - **Discord**: Join the JuliaOS community for technical discussions
 
 ---
